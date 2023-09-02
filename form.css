@@ -144,3 +144,37 @@
     stroke-dashoffset: 0;
   }
 }
+
+
+/* phone number input */
+
+
+.tel-input{
+  width: 80%;
+  color: #ececec;
+  outline: none;
+  background-color: rgba(245, 40, 145, 0);
+  border-radius: 5px;
+  border: 0px white solid;
+  font-size: 17px;
+  border-bottom: 2px solid rgb(140 153 168);
+  padding: 3px 15px 3px 3px;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+.tel-input::placeholder {
+  font-size: 17px;
+  font-family: 'Ubuntu', sans-serif;
+}
+.tel-input::placeholder {
+  font-size: 17px;
+  font-family: 'Ubuntu', sans-serif;
+}
+.tel-input::placeholder {
+  font-size: 17px;
+  font-family: 'Ubuntu', sans-serif;
+}
+.tel-input::placeholder {
+  font-size: 17px;
+  font-family: 'Ubuntu', sans-serif;
+}

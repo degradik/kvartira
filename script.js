@@ -1,10 +1,8 @@
-// Inspired by: https://dribbble.com/shots/3545421-017-Email-receipt
-
 function $(e) { return document.querySelector(e); }
 
 var next = $('.next');
 var prev = $('.prev');
-var index = 0;
+var index = 5;
 
 let Questions = [
   {
@@ -56,34 +54,21 @@ let Questions = [
     type: "radio",
     userAnswers: []
   },
-]
-/*
-var randomText = [
-  {
-    title: "Yeah Mr. White! Yeah Science!",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum atque placeat, blanditiis soluta possimus voluptatem ea nostrum illo, in facere perspiciatis eveniet voluptatum ex quia vel eaque optio, veritatis odio!"
-  },
-  {
-    title: "Yeah Mr. White! Yeah Science!",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, quos, vero earum cumque debitis nesciunt doloribus saepe, eaque, dolore ea aut. Soluta voluptatem magnam possimus suscipit culpa at impedit tempora, perferendis ducimus reprehenderit eos? Expedita ipsa, natus. Sapiente laboriosam vero, minus possimus esse odio fuga dolore minima eius, tenetur tempora!"
-  },
-  {
-    title: "Yeah Mr. White! Yeah Science!",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae fugit inventore."
-  },
-  {
-    title: "Yeah Mr. White! Yeah Science!",
-    desc: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Beatae fugit inventore. <br>1. Lorem Ipsum <br>2. Lorem Ipsum <br>3. Lorem Ipsum <br>4. Lorem Ipsum"
-  } 
 ];
+let phoneNumber;
+/*
+var wage = document.getElementById("modal");
+wage.addEventListener("keydown", function (e) {
+    if (e.code === "Enter") {  //checks whether the pressed key is "Enter"
+        alert("hui");
+    }
+});*/
 
-$('.content__title').innerHTML = randomText[0].title;
-$('.content__desc').innerHTML = randomText[0].desc;
-*/
+let contentReloading = false;
+let cashedUserAnswers = [];
 
-//ReloadContent();
-
-function ReloadContent(modifier) {
+function ReloadContent() {
+  contentReloading = true;
   toggleView();
   setTimeout(function () {
 
@@ -95,7 +80,7 @@ function ReloadContent(modifier) {
       if (i == 0) checked = "checked";
 
       text += `<label class="mcui-checkbox form-label">
-      <input name="name" required type="${Questions[index].type}" id="button${Number(i)}" ${checked}>
+      <input name="name" required type="${Questions[index].type}" id="button${Number(i)}" ${false}>
       <div>
         <svg class="mcui-check" viewBox="-2 -2 35 35" aria-hidden="true">
           <title>checkmark-circle</title>
@@ -106,76 +91,100 @@ function ReloadContent(modifier) {
       </label>`
     }
 
-    $('.tt').innerHTML = `<form id=\"form-content\">${text}</form>`;
-    //$('.content__title').innerHTML = randomText[index].title;
-    //$('.content__desc').innerHTML = randomText[index].desc;      
+    // Если последний вопрос, добавлять поле для номер и при переключении записывать его значение и добавлять в письмо
+    if (index + 1 == Questions.length) {
+        //text += `<input name="guruweba_example_range" type="range" min="70000000000" max="89999999999" />`;
+        text += `
+          <label class="mcui-checkbox form-label">
+            <input class="tel-input" type="tel" id="phone" placeholder="Введите номер телефона" />
+          </label>
+        `;
+        //$(".phone").mask("+7(999)999-9999");
+    }
+
+    $('.tt').innerHTML = `<div id=\"content\">${text}</div>`; 
+
+    for (let i = 0; i < cashedUserAnswers.length; i++) {
+        document.getElementById(`button${Number(cashedUserAnswers[i])}`).checked = true;
+    }
+
+    cashedUserAnswers = [];
+
+    contentReloading = false;
   }, 400)
-  //$('main').classList.remove('view' + index + '--active');
-  //$('main').classList.add('view' + (index + modifier) + '--active');
 }
 
 
-
-
-
-
-
-
-
-
-
-
-// function ReloadContent(modifier) {
-//   toggleView();
-//   setTimeout(function () {
-
-//     let text = "";
-//     text += `<h3>${Questions[index].text}</h3>\n`;
-
-//     for (let i = 0; i < Questions[index].answers.length; i++) {
-//       let checked = "";
-//       if (i == 0) checked = "checked";
-
-//       text += `<p><input name="name" required type="${Questions[index].type}" id="button${Number(i)}" ${checked}> ${Questions[index].answers[i]}</p>`
-//     }
-
-//     $('.tt').innerHTML = `<form id=\"form-content\">${text}</form>`;
-//     //$('.content__title').innerHTML = randomText[index].title;
-//     //$('.content__desc').innerHTML = randomText[index].desc;      
-//   }, 500)
-//   //$('main').classList.remove('view' + index + '--active');
-//   //$('main').classList.add('view' + (index + modifier) + '--active');
-// }
-
-
-
-
-
-
-
-//let questionIndex = 0;
 next.addEventListener('click', function () {
-  if (index < Questions.length - 1) {
+  if (contentReloading) return;
+  //alert(index + "    " + Questions.length);
+  if (index < Questions.length) {
     // Сбор ответов
     for (let i = 0; i < Questions[index].answers.length; i++) {
-      if (document.getElementById(`button${Number(i)}`).checked) {
-        Questions[index].userAnswers.push(i);
-      }
+        if (document.getElementById(`button${Number(i)}`).checked) {
+            Questions[index].userAnswers.push(i);
+        }
     }
+    if (Questions[index].userAnswers.length <= 0) return;
 
-    ReloadContent(1);
-    index++;
-  } else {
-    // Действия после последнего вопроса
-    alert('Действия после последнего вопроса');
-    //alert(Questions);
+    if (index >= Questions.length - 1) {
+        // Действия после последнего вопроса
+        phoneNumber = document.getElementById(`phone`).value;
+
+        if (phoneNumber == "") {
+            alert('Введите номер телефона');
+            return;
+        } else {
+            alert('Действия после последнего вопроса');
+        }
+
+        let value = "";
+
+        for(let i = 0; i < Questions.length; i++) {
+            let answersText = "";
+            for(let j = 0; j < Questions[i].userAnswers.length; j++) {
+                answersText += Questions[i].answers[Questions[i].userAnswers[j]];
+                if (j < Questions[i].userAnswers.length - 1) {
+                    answersText += ", ";
+                }
+            }
+            value += Questions[i].text + ":  " + answersText + "\n";
+        }
+        value += `Номер телефона: ${phoneNumber}`;
+        // Добавить номер телефона
+        alert(value);
+
+        /*
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://formspree.io/f/xknlrdqg", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({
+            Answers: value
+        }));
+        */
+        //alert(Questions);
+    } else { 
+        ReloadContent();
+        index++;
+    }
   }
 }, false);
 
 prev.addEventListener('click', function () {
-  ReloadContent(-1);
+  if (contentReloading) return;
 
-  if (index > 0) index--;
+  ReloadContent();
+
+  if (index > 0) {
+      index--; 
+
+      cashedUserAnswers = Questions[index].userAnswers;
+      
+      Questions[index].userAnswers = [];
+      if (index < Questions.length - 1) {
+        Questions[index + 1].userAnswers = [];
+      }
+  }
 }, false)
 
 function toggleView() {
@@ -184,3 +193,9 @@ function toggleView() {
     $('main').classList.remove('fade-out');
   }, 400)
 }
+
+// Фронтэнд для телефонов
+// Переключение по нажатию enter
+// Фронтэнд номер телефона
+// Спец поле для номер телефона
+// Как-то уведомлять пользователя о завершении опроса
