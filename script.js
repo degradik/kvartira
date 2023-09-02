@@ -2,7 +2,7 @@ function $(e) { return document.querySelector(e); }
 
 var next = $('.next');
 var prev = $('.prev');
-var index = 5;
+var index = 0;
 
 let Questions = [
   {
@@ -79,7 +79,7 @@ function ReloadContent() {
       let checked = "";
       if (i == 0) checked = "checked";
 
-      text += `<label class="mcui-checkbox form-label">
+      text += `<label class="mcui-checkbox form-label vertical-shake">
       <input name="name" required type="${Questions[index].type}" id="button${Number(i)}" ${false}>
       <div>
         <svg class="mcui-check" viewBox="-2 -2 35 35" aria-hidden="true">
@@ -87,7 +87,7 @@ function ReloadContent() {
           <polyline points="7.57 15.87 12.62 21.07 23.43 9.93" />
         </svg>
       </div>
-      <div><p class="form-text">${Questions[index].answers[i]}</p></div>
+      <div><p class="form-text"><span class="" id="shakableText">${Questions[index].answers[i]}</span></p></div>
       </label>`
     }
 
@@ -95,9 +95,9 @@ function ReloadContent() {
     if (index + 1 == Questions.length) {
         //text += `<input name="guruweba_example_range" type="range" min="70000000000" max="89999999999" />`;
         text += `
-          <label class="mcui-checkbox form-label">
-            <input class="tel-input" type="tel" id="phone" placeholder="Введите номер телефона" />
-          </label>
+            <label class="mcui-checkbox form-label">
+                <input class="tel-input" type="tel" id="phone" placeholder="Введите номер телефона" />
+            </label>
         `;
         //$(".phone").mask("+7(999)999-9999");
     }
@@ -115,59 +115,87 @@ function ReloadContent() {
 }
 
 
-next.addEventListener('click', function () {
-  if (contentReloading) return;
-  //alert(index + "    " + Questions.length);
-  if (index < Questions.length) {
-    // Сбор ответов
-    for (let i = 0; i < Questions[index].answers.length; i++) {
-        if (document.getElementById(`button${Number(i)}`).checked) {
-            Questions[index].userAnswers.push(i);
-        }
+function ClickNext() {
+    //alert(contentReloading);
+    if (contentReloading) return;
+    //alert(index + "    " + Questions.length);
+    if (index < Questions.length) {
+      // Сбор ответов
+      for (let i = 0; i < Questions[index].answers.length; i++) {
+          if (document.getElementById(`button${Number(i)}`).checked) {
+              Questions[index].userAnswers.push(i);
+          }
+      }
+      if (Questions[index].userAnswers.length <= 0) {   
+          let lines = document.querySelectorAll('#shakableText');
+          //Обходим каждый найденный элемент 
+          for  (let line of lines) {
+              line.className = "vertical-shake";
+          }
+
+          setTimeout(function() {
+              let lines = document.querySelectorAll('#shakableText');
+              //Обходим каждый найденный элемент 
+              for  (let line of lines) {
+                  line.className = "";
+              }
+          }, 350);
+
+          return;
+      }
+
+      if (index >= Questions.length - 1) {
+          // Действия после последнего вопроса
+          phoneNumber = document.getElementById(`phone`).value;
+
+          if (phoneNumber == "") {
+              alert('Введите номер телефона');
+              return;
+          } else {
+              alert('Действия после последнего вопроса');
+          }
+
+          let value = "";
+
+          for(let i = 0; i < Questions.length; i++) {
+              let answersText = "";
+              for(let j = 0; j < Questions[i].userAnswers.length; j++) {
+                  answersText += Questions[i].answers[Questions[i].userAnswers[j]];
+                  if (j < Questions[i].userAnswers.length - 1) {
+                      answersText += ", ";
+                  }
+              }
+              value += Questions[i].text + ":  " + answersText + "\n";
+          }
+          value += `Номер телефона: ${phoneNumber}`;
+          // Добавить номер телефона
+          alert(value);
+
+          /*
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "https://formspree.io/f/xknlrdqg", true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(JSON.stringify({
+              Answers: value
+          }));
+          */
+          //alert(Questions);
+      } else { 
+          ReloadContent();
+          index++;
+      }
     }
-    if (Questions[index].userAnswers.length <= 0) return;
+}
 
-    if (index >= Questions.length - 1) {
-        // Действия после последнего вопроса
-        phoneNumber = document.getElementById(`phone`).value;
-
-        if (phoneNumber == "") {
-            alert('Введите номер телефона');
-            return;
-        } else {
-            alert('Действия после последнего вопроса');
-        }
-
-        let value = "";
-
-        for(let i = 0; i < Questions.length; i++) {
-            let answersText = "";
-            for(let j = 0; j < Questions[i].userAnswers.length; j++) {
-                answersText += Questions[i].answers[Questions[i].userAnswers[j]];
-                if (j < Questions[i].userAnswers.length - 1) {
-                    answersText += ", ";
-                }
-            }
-            value += Questions[i].text + ":  " + answersText + "\n";
-        }
-        value += `Номер телефона: ${phoneNumber}`;
-        // Добавить номер телефона
-        alert(value);
-
-        /*
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "https://formspree.io/f/xknlrdqg", true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({
-            Answers: value
-        }));
-        */
-        //alert(Questions);
-    } else { 
-        ReloadContent();
-        index++;
-    }
+document.addEventListener("keydown", (e) => {
+  if (e.key == "Enter"){
+      //alert("Enter Key is Pressed")
+      ClickNext();
   }
+});
+
+next.addEventListener('click', function () {
+  ClickNext();
 }, false);
 
 prev.addEventListener('click', function () {
@@ -194,8 +222,9 @@ function toggleView() {
   }, 400)
 }
 
-// Фронтэнд для телефонов
-// Переключение по нажатию enter
-// Фронтэнд номер телефона
+
+// Фрондэнд для телефонов
+//+ Переключение по нажатию enter
+//+ Фрондэнд номер телефона
 // Спец поле для номер телефона
 // Как-то уведомлять пользователя о завершении опроса

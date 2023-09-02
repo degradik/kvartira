@@ -289,3 +289,22 @@ body .fade-out .circ {
     opacity: 1;
   }
 }
+
+
+
+
+
+
+span {
+  display: inline-block;
+}
+span.vertical-shake {
+  animation: vertical-shaking 0.35s infinite;
+}
+@keyframes vertical-shaking {
+  0% { transform: translateX(0) }
+  25% { transform: translateX(3px) }
+  50% { transform: translateX(-3px) }
+  75% { transform: translateX(3px) }
+  100% { transform: translateX(0) }
+}
