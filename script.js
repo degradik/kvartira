@@ -8,7 +8,7 @@ let Questions = [
   {
     text: "Выберите район",
     answers: [
-      "Все районы", "Ворошиловский", "Залупинский"
+      "Все районы", "Ворошиловский", "Железнодорожный", "Кировский", "Ленинский", "Октябрьский", "Первомайский", "Пролетарский", "Советский"
     ],
     type: "checkbox",
     userAnswers: []
@@ -16,11 +16,12 @@ let Questions = [
   {
     text: "Выберите количество комнат",
     answers: [
-      "Студия", "1-комнатная", "2-комнатная", "3-комнатная", "дохуя-комнатная"
+      "Студия", "1-комнатная", "2-комнатная", "3-комнатная", "Любое"
     ],
     type: "checkbox",
     userAnswers: []
   },
+  /*
   {
     text: "Выберите примерную планировку",
     answers: [
@@ -29,10 +30,11 @@ let Questions = [
     type: "checkbox",
     userAnswers: []
   },
+  */
   {
     text: "Выберите этап сдачи",
     answers: [
-      "Пустырь", "Котлаван", "Голый дом", "Норм дом"
+      "Котлаван", "Этот год", "Следующий год", "Дом сдан"
     ],
     type: "checkbox",
     userAnswers: []
@@ -40,8 +42,15 @@ let Questions = [
   {
     text: "Примерный бюджет",
     answers: [
-      "Пачка дошика", "10.000р", "от 50.000р до 100.000р", "от 100.000р до 200.000р",
-      "от 200.000р до 500.000р", "от 500.000р до 100.000.000р", "у меня бесконечно денег нах"
+      "До 5 млн. руб", "До 10 млн. руб", "Более 10 млн. руб"
+    ],
+    type: "radio",
+    userAnswers: []
+  },
+  {
+    text: "Способ оплаты",
+    answers: [
+      "Наличный расчет", "Ипотека", "Жилищный сертификат", "В рассрочку", "Другое"
     ],
     type: "radio",
     userAnswers: []
@@ -49,7 +58,7 @@ let Questions = [
   {
     text: "Выберите вариант связи",
     answers: [
-      "Факс", "Голуби", "Почта России", "Яндекс.доставка"
+      "WhatsApp", "Telegram", "Звонок"
     ],
     type: "radio",
     userAnswers: []
@@ -114,6 +123,21 @@ function ReloadContent() {
   }, 400)
 }
 
+function ShakeTexts() {
+    let lines = document.querySelectorAll('#shakableText');
+    //Обходим каждый найденный элемент 
+    for  (let line of lines) {
+        line.className = "vertical-shake";
+    }
+
+    setTimeout(function() {
+        let lines = document.querySelectorAll('#shakableText');
+        //Обходим каждый найденный элемент 
+        for  (let line of lines) {
+            line.className = "";
+        }
+    }, 350);
+}
 
 function ClickNext() {
     //alert(contentReloading);
@@ -127,19 +151,7 @@ function ClickNext() {
           }
       }
       if (Questions[index].userAnswers.length <= 0) {   
-          let lines = document.querySelectorAll('#shakableText');
-          //Обходим каждый найденный элемент 
-          for  (let line of lines) {
-              line.className = "vertical-shake";
-          }
-
-          setTimeout(function() {
-              let lines = document.querySelectorAll('#shakableText');
-              //Обходим каждый найденный элемент 
-              for  (let line of lines) {
-                  line.className = "";
-              }
-          }, 350);
+          ShakeTexts();
 
           return;
       }
@@ -149,7 +161,8 @@ function ClickNext() {
           phoneNumber = document.getElementById(`phone`).value;
 
           if (phoneNumber == "") {
-              alert('Введите номер телефона');
+              //alert('Введите номер телефона');
+              ShakeTexts();
               return;
           } else {
               alert('Действия после последнего вопроса');
@@ -224,7 +237,5 @@ function toggleView() {
 
 
 // Фрондэнд для телефонов
-//+ Переключение по нажатию enter
-//+ Фрондэнд номер телефона
 // Спец поле для номер телефона
 // Как-то уведомлять пользователя о завершении опроса
